@@ -21,7 +21,7 @@
             v-for="chain in CHAINS"
             :key="chain"
             :value="chain"
-            :disabled="chain !== CHAIN_SEPOLIA"
+            :disabled="!isSourceSupported(chain)"
           >
             {{ getChainName(chain) }}
           </option>
@@ -36,7 +36,7 @@
             v-for="chain in CHAINS"
             :key="chain"
             :value="chain"
-            :disabled="chain === source"
+            :disabled="chain === source || !isTargetSupported(chain)"
           >
             {{ getChainName(chain) }}
           </option>
@@ -92,6 +92,14 @@ const CHAINS: Chain[] = [
   CHAIN_SCROLL_SEPOLIA,
 ];
 
+function isSourceSupported(chain: Chain): boolean {
+  return getBytecodeRouterAddress(chain) !== zeroAddress;
+}
+
+function isTargetSupported(chain: Chain): boolean {
+  return getRecipient(chain) !== zeroAddress;
+}
+
 const initcode = ref('');
 const salt = ref('');
 const source = ref<Chain>(CHAIN_SEPOLIA);
@@ -141,17 +149,18 @@ function getChainData(chain: Chain): ChainData {
   }
 }
 
-function getRecipients(chains: Chain[]): Address[] {
-  function getRecipient(chain: Chain): Address {
-    switch (chain) {
-      case CHAIN_SEPOLIA:
-        return zeroAddress;
-      case CHAIN_POLYGON_MUMBAI:
-        return '0xD0B7BFE8bc7a635Ce2E514c1b4Eb5C9238Ef9998';
-      case CHAIN_SCROLL_SEPOLIA:
-        return '0xF0FB374975dFbDAF18f9E85Ddc4939A4b37A56bE';
-    }
+function getRecipient(chain: Chain): Address {
+  switch (chain) {
+    case CHAIN_SEPOLIA:
+      return zeroAddress;
+    case CHAIN_POLYGON_MUMBAI:
+      return '0xD0B7BFE8bc7a635Ce2E514c1b4Eb5C9238Ef9998';
+    case CHAIN_SCROLL_SEPOLIA:
+      return '0xF0FB374975dFbDAF18f9E85Ddc4939A4b37A56bE';
   }
+}
+
+function getRecipients(chains: Chain[]): Address[] {
   return chains.map(getRecipient);
 }
 
