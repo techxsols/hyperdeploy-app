@@ -63,9 +63,10 @@ import {
   isTargetSupported,
   isSourceSupported,
 } from '@/utils/core';
-import deployAsEoa from '@/utils/deployEoa';
+// import deployAsEoa from '@/utils/deployEoa';
+import deployWithSafe from '@/utils/deployWithSafe';
 
-const { privateKey } = useEnv();
+const { privateKey, pimlicoApiKey } = useEnv();
 
 const initcode = ref('');
 const salt = ref('');
@@ -97,12 +98,22 @@ function getChainName(chain: Chain): string {
 }
 
 async function deploy(): Promise<void> {
-  await deployAsEoa(
+  // await deployAsEoa(
+  //   source.value,
+  //   target.value,
+  //   initcode.value,
+  //   salt.value,
+  //   privateKey,
+  // );
+  const accountSalt = '0x54ebe0a0fbd0caf8782fddfccc1bc24ef004e69f';
+  await deployWithSafe(
     source.value,
     target.value,
     initcode.value,
     salt.value,
+    pimlicoApiKey,
     privateKey,
+    accountSalt,
   );
 }
 </script>
