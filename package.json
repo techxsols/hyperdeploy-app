@@ -23,6 +23,7 @@
     "typecheck": "tsc --noEmit && vue-tsc --noEmit"
   },
   "dependencies": {
+    "permissionless": "^0.1.10",
     "viem": "^2.8.10",
     "vue": "^3.4.19",
     "vue-router": "^4.3.0"
