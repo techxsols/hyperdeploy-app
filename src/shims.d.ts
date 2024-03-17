@@ -7,7 +7,6 @@ declare module '*.vue' {
 
 interface ImportMeta {
   env: {
-    VITE_ALCHEMY_API_KEY?: string;
     VITE_PIMLICO_API_KEY?: string;
     VITE_PK?: string;
   };
