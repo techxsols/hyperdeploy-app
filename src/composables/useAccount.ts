@@ -6,7 +6,8 @@ import useAccountStore from '@/stores/account';
 import getNickname from '@/utils/nicknames';
 
 interface UseAccount {
-  setPassphrase(phrase: string): void;
+  login(phrase: string): void;
+  logout(): void;
   isAuthorized: Ref<boolean>;
   account: Ref<PrivateKeyAccount>;
   address: Ref<Hex>;
@@ -18,8 +19,12 @@ function useAccount(): UseAccount {
 
   const passphrase = computed(() => store.passphrase);
 
-  function setPassphrase(newPassphrase: string): void {
+  function login(newPassphrase: string): void {
     store.setPasshrase(newPassphrase);
+  }
+
+  function logout(): void {
+    store.setPasshrase('');
   }
 
   const isAuthorized = computed(() => !!passphrase.value);
@@ -40,7 +45,8 @@ function useAccount(): UseAccount {
   const nickname = computed(() => getNickname(address.value));
 
   return {
-    setPassphrase,
+    login,
+    logout,
     isAuthorized,
     account,
     address,
