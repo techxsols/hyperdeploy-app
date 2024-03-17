@@ -12,6 +12,7 @@
             v-model="passphrase"
             placeholder="Passphrase"
           />
+          <button @click="generatePassphrase">Generate</button>
           <button
             :disabled="!passphrase"
             @click="handleLogin"
@@ -29,6 +30,7 @@ import { Dialog } from 'radix-vue/namespaced';
 import { ref } from 'vue';
 
 import useAccount from '@/composables/useAccount';
+import { getNoun } from '@/utils/words';
 
 const { login } = useAccount();
 
@@ -50,6 +52,28 @@ function handleLogin(): void {
   login(passphrase.value);
   passphrase.value = '';
   emit('close');
+}
+
+function getRandomPassphrase(): string {
+  // 4 random nouns, split by dash
+  const indices = [];
+  for (let i = 0; i < 4; i++) {
+    const index = Math.floor(Math.random() * 1_000_000);
+    indices.push(index);
+  }
+  return (
+    getNoun(indices[0]) +
+    '-' +
+    getNoun(indices[1]) +
+    '-' +
+    getNoun(indices[2]) +
+    '-' +
+    getNoun(indices[3])
+  );
+}
+
+function generatePassphrase(): void {
+  passphrase.value = getRandomPassphrase();
 }
 
 const passphrase = ref('');
