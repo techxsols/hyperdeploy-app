@@ -75,7 +75,7 @@
         </div>
         <div class="block">
           <HyperButton
-            :disabled="!isAuthorized || !isDeployable"
+            :disabled="!isAuthorized || !isDeployable || isDeploying"
             primary
             @click="deploy"
           >
@@ -209,7 +209,9 @@ function getChainName(chain: Chain): string {
   }
 }
 
+const isDeploying = ref(false);
 async function deploy(): Promise<void> {
+  isDeploying.value = true;
   await deployWithSafe(
     source.value,
     target.value,
@@ -218,6 +220,7 @@ async function deploy(): Promise<void> {
     pimlicoApiKey,
     account.value,
   );
+  isDeploying.value = false;
 }
 </script>
 
