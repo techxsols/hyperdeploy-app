@@ -3,7 +3,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { type Ref, computed } from 'vue';
 
 import useAccountStore from '@/stores/account';
-import getNickname from '@/utils/nicknames';
+import { getNickname } from '@/utils/words';
 
 interface UseAccount {
   login(phrase: string): void;

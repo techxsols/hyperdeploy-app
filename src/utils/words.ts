@@ -3,7 +3,23 @@ import type { Hex } from 'viem';
 // Deternimistically assign memorable nicknames to Ethereum address
 // Names are coming from the dictionary
 function getNickname(address: Hex): string {
-  const adjectives = [
+  const adjectives = getAdjectives();
+  const nouns = getNouns();
+  const adjectiveIndex = BigInt(address) % BigInt(adjectives.length);
+  const nounIndex = BigInt(address) % BigInt(nouns.length);
+
+  return `${adjectives[Number(adjectiveIndex)]} ${nouns[Number(nounIndex)]}`;
+}
+
+function getNoun(index: number): string {
+  const nouns = getNouns();
+  // Account for overflow
+  const nounIndex = index % nouns.length;
+  return nouns[nounIndex].toLowerCase();
+}
+
+function getAdjectives(): string[] {
+  return [
     'Adorable',
     'Adventurous',
     'Aggressive',
@@ -92,8 +108,10 @@ function getNickname(address: Hex): string {
     'Wonderful',
     'Zealous',
   ];
+}
 
-  const nouns = [
+function getNouns(): string[] {
+  return [
     'Account',
     'Address',
     'Airplane',
@@ -203,11 +221,6 @@ function getNickname(address: Hex): string {
     'Window',
     'Wood',
   ];
-
-  const adjectiveIndex = BigInt(address) % BigInt(adjectives.length);
-  const nounIndex = BigInt(address) % BigInt(nouns.length);
-
-  return `${adjectives[Number(adjectiveIndex)]} ${nouns[Number(nounIndex)]}`;
 }
 
-export default getNickname;
+export { getNickname, getNoun };
