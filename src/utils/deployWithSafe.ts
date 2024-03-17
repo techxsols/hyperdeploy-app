@@ -23,29 +23,41 @@ import bytecodeRouterAbi from '@/abi/bytecodeRouter';
 import hyperlaneMailboxAbi from '@/abi/hyperlaneMailbox';
 
 import {
-  getRpcUrl,
   type Chain,
+  getRpcUrl,
   CHAIN_SEPOLIA,
   CHAIN_POLYGON_MUMBAI,
   CHAIN_SCROLL_SEPOLIA,
+  CHAIN_ALFAJORES,
+  CHAIN_FUJI,
+  CHAIN_BSC_TESTNET,
+  CHAIN_MOONBASE_ALPHA,
   getChainData,
   getBytecodeRouterAddress,
   getRecipients,
   getHookMetadatas,
-  getHooks,
+  getHook,
   addressToBytes32,
   getMailboxAddress,
 } from './core';
 
 function getPimlicoChainName(chain: Chain): string {
+  const NOT_SUPPORTED = '';
   switch (chain) {
     case CHAIN_SEPOLIA:
       return 'sepolia';
     case CHAIN_POLYGON_MUMBAI:
-      // Not supported yet
-      return '';
+      return NOT_SUPPORTED;
     case CHAIN_SCROLL_SEPOLIA:
       return 'scroll-sepolia-testnet';
+    case CHAIN_ALFAJORES:
+      return 'celo-alfajores-testnet';
+    case CHAIN_FUJI:
+      return 'avalanche-fuji';
+    case CHAIN_BSC_TESTNET:
+      return NOT_SUPPORTED;
+    case CHAIN_MOONBASE_ALPHA:
+      return NOT_SUPPORTED;
   }
 }
 
@@ -127,7 +139,7 @@ async function deploy(
   const destinations: Chain[] = targets;
   const recipients: Address[] = getRecipients(targets);
   const hookMetadatas: Hex[] = getHookMetadatas(targets);
-  const hooks: Address[] = getHooks(targets);
+  const hooks: Address[] = targets.map(() => getHook(source));
   const formattedRecipients = recipients.map((r) => addressToBytes32(r));
   const destinationBigInts = destinations.map((d) => BigInt(d));
   const messageBody = encodeAbiParameters(

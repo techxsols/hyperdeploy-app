@@ -26,7 +26,7 @@ import {
   getRpcUrl,
   getRecipients,
   getHookMetadatas,
-  getHooks,
+  getHook,
   addressToBytes32,
 } from '@/utils/core';
 
@@ -71,7 +71,7 @@ async function deploy(
   const destinations: Chain[] = targets;
   const recipients: Address[] = getRecipients(targets);
   const hookMetadatas: Hex[] = getHookMetadatas(targets);
-  const hooks: Address[] = getHooks(targets);
+  const hooks: Address[] = targets.map(() => getHook(source));
   const formattedRecipients = recipients.map((r) => addressToBytes32(r));
   const values: bigint[] = [];
   for (let i = 0; i < destinations.length; i++) {
