@@ -7,18 +7,24 @@
       <Dialog.Overlay class="overlay" />
       <Dialog.Content class="content">
         <Dialog.Title class="title">Log In</Dialog.Title>
-        <Dialog.Description>
-          <input
-            v-model="passphrase"
-            placeholder="Passphrase"
-          />
-          <button @click="generatePassphrase">Generate</button>
-          <button
-            :disabled="!passphrase"
-            @click="handleLogin"
-          >
-            Log In
-          </button>
+        <Dialog.Description class="description">
+          <div class="passphrase">
+            <HyperInput
+              v-model="passphrase"
+              placeholder="Passphrase"
+              class="passphrase-input"
+            />
+            <HyperButton @click="generatePassphrase">Generate</HyperButton>
+          </div>
+          <div>
+            <HyperButton
+              :disabled="!passphrase"
+              primary
+              @click="handleLogin"
+            >
+              Log In
+            </HyperButton>
+          </div>
         </Dialog.Description>
       </Dialog.Content>
     </Dialog.Portal>
@@ -29,6 +35,8 @@
 import { Dialog } from 'radix-vue/namespaced';
 import { ref } from 'vue';
 
+import HyperButton from '@/components/HyperButton.vue';
+import HyperInput from '@/components/HyperInput.vue';
 import useAccount from '@/composables/useAccount';
 import { getNoun } from '@/utils/words';
 
@@ -97,11 +105,13 @@ const passphrase = ref('');
   padding: 25px;
   transform: translate(-50%, -50%);
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background-color: white;
+  background: var(--color-background);
   box-shadow:
     hsl(206deg 22% 7% / 35%) 0 10px 38px -10px,
     hsl(206deg 22% 7% / 20%) 0 10px 20px -15px;
+  color: var(--color-text-primary);
 }
 
 .content:focus {
@@ -110,8 +120,24 @@ const passphrase = ref('');
 
 .title {
   margin: 0;
-  color: hsl(206deg 22% 7% / 100%);
   font-size: 17px;
   font-weight: 500;
+}
+
+.description {
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+  margin: 32px 0 0;
+}
+
+.passphrase {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.passphrase-input {
+  flex: 1;
 }
 </style>

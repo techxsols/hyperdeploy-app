@@ -21,9 +21,16 @@ import AccountButton from '@/components/AccountButton.vue';
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   --font-mono: 'Menlo', 'Consolas', 'Monaco', 'Liberation Mono',
     'Lucida Console', monospace;
+  --color-text-primary: #f0f0f0;
+  --color-border: #1c1c1c;
+  --color-border-light: #2c2c2c;
+  --color-background: #060606;
+  --color-background-secondary: #14161b;
 }
 
 body {
+  background: var(--color-background);
+  color: var(--color-text-primary);
   font-family: var(--font-sans);
 }
 

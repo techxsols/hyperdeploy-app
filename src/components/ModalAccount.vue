@@ -7,16 +7,24 @@
       <Dialog.Overlay class="overlay" />
       <Dialog.Content class="content">
         <Dialog.Title class="title">Account</Dialog.Title>
-        <Dialog.Description>
-          <div>
-            <div>Address</div>
-            <div class="address">{{ address }}</div>
+        <Dialog.Description class="description">
+          <div class="fields">
+            <div class="field">
+              <div class="label">Address</div>
+              <div class="value">
+                {{ formatAddress(address) }}
+                <ButtonCopy :value="address" />
+              </div>
+            </div>
+            <div class="field">
+              <div class="label">Safe Address</div>
+              <div class="value">
+                {{ formatAddress(safeAddress) }}
+                <ButtonCopy :value="address" />
+              </div>
+            </div>
           </div>
-          <div>
-            <div>Safe Address</div>
-            <div class="address">{{ safeAddress }}</div>
-          </div>
-          <button @click="handleLogout">Log Out</button>
+          <div><HyperButton @click="handleLogout"> Log Out </HyperButton></div>
         </Dialog.Description>
       </Dialog.Content>
     </Dialog.Portal>
@@ -26,6 +34,8 @@
 <script setup lang="ts">
 import { Dialog } from 'radix-vue/namespaced';
 
+import ButtonCopy from '@/components/ButtonCopy.vue';
+import HyperButton from '@/components/HyperButton.vue';
 import useAccount from '@/composables/useAccount';
 
 const { address, safeAddress, logout } = useAccount();
@@ -42,6 +52,10 @@ function handleUpdateOpen(value: boolean): void {
   if (!value) {
     emit('close');
   }
+}
+
+function formatAddress(address: string): string {
+  return `${address.slice(0, 12)}...${address.slice(-10)}`;
 }
 
 function handleLogout(): void {
@@ -68,11 +82,13 @@ function handleLogout(): void {
   padding: 25px;
   transform: translate(-50%, -50%);
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background-color: white;
+  background: var(--color-background);
   box-shadow:
     hsl(206deg 22% 7% / 35%) 0 10px 38px -10px,
     hsl(206deg 22% 7% / 20%) 0 10px 20px -15px;
+  color: var(--color-text-primary);
 }
 
 .content:focus {
@@ -81,12 +97,37 @@ function handleLogout(): void {
 
 .title {
   margin: 0;
-  color: hsl(206deg 22% 7% / 100%);
   font-size: 17px;
   font-weight: 500;
 }
 
-.address {
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 32px 0 0;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
   font-size: 14px;
+}
+
+.value {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  gap: 8px;
 }
 </style>

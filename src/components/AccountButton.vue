@@ -1,5 +1,8 @@
 <template>
-  <div @click="showModal">
+  <div
+    class="button"
+    @click="showModal"
+  >
     <span v-if="isAuthorized">{{ nickname }}</span>
     <span v-else>Log in</span>
   </div>
@@ -46,3 +49,16 @@ function handleModalLoginClose(): void {
   isModalLogInOpen.value = false;
 }
 </script>
+
+<style scoped>
+.button {
+  padding: 4px 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--color-background-secondary);
+}
+</style>
