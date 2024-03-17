@@ -23,6 +23,7 @@ import {
 import { readContract } from 'viem/actions';
 
 import bytecodeRouterAbi from '@/abi/bytecodeRouter';
+import gnosisSafeAbi from '@/abi/gnosisSafe';
 import hyperlaneMailboxAbi from '@/abi/hyperlaneMailbox';
 
 import {
@@ -228,5 +229,163 @@ async function deploy(
   return userOpResult.receipt.transactionHash;
 }
 
+async function addOwner(
+  source: Chain,
+  pimlicoApiKey: string,
+  safeAddress: Address,
+  signer: PrivateKeyAccount,
+  newOwner: Address,
+): Promise<Hex> {
+  console.log('Adding a new owner', {
+    source,
+    safeAddress,
+    signer: signer.address,
+    newOwner,
+  });
+  const chain = getChainData(source);
+  const pimlicoPaymasterRpcUrl = getPimlicoPaymasterRpcUrl(
+    source,
+    pimlicoApiKey,
+  );
+  const pimlicoBundlerRpcUrl = getPimlicoBundlerRpcUrl(source, pimlicoApiKey);
+
+  const paymasterClient = createPimlicoPaymasterClient({
+    transport: http(pimlicoPaymasterRpcUrl),
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+  });
+  const bundlerClient = createPimlicoBundlerClient({
+    transport: http(pimlicoBundlerRpcUrl),
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+  });
+
+  const safeAccount = await getSafeAccount(source, signer);
+
+  const smartAccountClient = createSmartAccountClient({
+    account: safeAccount,
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+    chain,
+    bundlerTransport: http(pimlicoBundlerRpcUrl),
+    middleware: {
+      gasPrice: async () =>
+        (await bundlerClient.getUserOperationGasPrice()).fast, // use pimlico bundler to get gas prices
+      sponsorUserOperation: paymasterClient.sponsorUserOperation, // optional
+    },
+  });
+
+  const gasPrices = await bundlerClient.getUserOperationGasPrice();
+
+  console.log('Deploying…');
+
+  const callData = await safeAccount.encodeCallData({
+    to: safeAddress,
+    data: encodeFunctionData({
+      abi: gnosisSafeAbi,
+      functionName: 'addOwnerWithThreshold',
+      args: [newOwner, 1],
+    }),
+    value: 0n,
+  });
+
+  const userOperation = await smartAccountClient.prepareUserOperationRequest({
+    userOperation: {
+      callData,
+      maxFeePerGas: gasPrices.fast.maxFeePerGas,
+      maxPriorityFeePerGas: gasPrices.fast.maxPriorityFeePerGas,
+    },
+  });
+
+  console.log('Sending the UserOp');
+
+  const userOpHash = await smartAccountClient.sendUserOperation({
+    userOperation,
+  });
+
+  console.log('Sent the UserOp');
+
+  const userOpResult = await bundlerClient.waitForUserOperationReceipt({
+    hash: userOpHash,
+  });
+
+  console.log('Added owner', userOpResult.receipt.transactionHash);
+
+  return userOpResult.receipt.transactionHash;
+}
+
+async function removeOwner(
+  source: Chain,
+  pimlicoApiKey: string,
+  safeAddress: Address,
+  signer: PrivateKeyAccount,
+  owner: Address,
+): Promise<Hex> {
+  const chain = getChainData(source);
+  const pimlicoPaymasterRpcUrl = getPimlicoPaymasterRpcUrl(
+    source,
+    pimlicoApiKey,
+  );
+  const pimlicoBundlerRpcUrl = getPimlicoBundlerRpcUrl(source, pimlicoApiKey);
+
+  const paymasterClient = createPimlicoPaymasterClient({
+    transport: http(pimlicoPaymasterRpcUrl),
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+  });
+  const bundlerClient = createPimlicoBundlerClient({
+    transport: http(pimlicoBundlerRpcUrl),
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+  });
+
+  const safeAccount = await getSafeAccount(source, signer);
+
+  const smartAccountClient = createSmartAccountClient({
+    account: safeAccount,
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+    chain,
+    bundlerTransport: http(pimlicoBundlerRpcUrl),
+    middleware: {
+      gasPrice: async () =>
+        (await bundlerClient.getUserOperationGasPrice()).fast, // use pimlico bundler to get gas prices
+      sponsorUserOperation: paymasterClient.sponsorUserOperation, // optional
+    },
+  });
+
+  const gasPrices = await bundlerClient.getUserOperationGasPrice();
+
+  console.log('Deploying…');
+
+  const callData = await safeAccount.encodeCallData({
+    to: safeAddress,
+    data: encodeFunctionData({
+      abi: gnosisSafeAbi,
+      functionName: 'removeOwner',
+      args: [smartAccountClient.account.address, owner, 1],
+    }),
+    value: 0n,
+  });
+
+  const userOperation = await smartAccountClient.prepareUserOperationRequest({
+    userOperation: {
+      callData,
+      maxFeePerGas: gasPrices.fast.maxFeePerGas,
+      maxPriorityFeePerGas: gasPrices.fast.maxPriorityFeePerGas,
+    },
+  });
+
+  console.log('Sending the UserOp');
+
+  const userOpHash = await smartAccountClient.sendUserOperation({
+    userOperation,
+  });
+
+  console.log('Sent the UserOp');
+
+  const userOpResult = await bundlerClient.waitForUserOperationReceipt({
+    hash: userOpHash,
+  });
+
+  console.log('Added owner', userOpResult.receipt.transactionHash);
+
+  return userOpResult.receipt.transactionHash;
+}
+
 export default deploy;
-export { getSafeAccount };
+export { getSafeAccount, addOwner, removeOwner };
