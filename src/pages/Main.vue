@@ -8,8 +8,12 @@
             v-model="initcode"
             placeholder="initcode"
           />
-          <div>
-            <HyperButton @click="setCounterInitcode">Counter</HyperButton>
+          <div class="buttons">
+            <HyperButton @click="setStorageInitcode">
+              Simple Storage
+            </HyperButton>
+            <HyperButton @click="setOwnerInitcode">Ownership</HyperButton>
+            <HyperButton @click="setBallotInitcode">Ballot</HyperButton>
           </div>
         </div>
         <div class="block block-salt">
@@ -89,6 +93,11 @@ import {
   isSourceSupported,
 } from '@/utils/core';
 import deployWithSafe from '@/utils/deployWithSafe';
+import {
+  getBallotInitcode,
+  getOwnerInitcode,
+  getSimpleStorageInitcode,
+} from '@/utils/initcode';
 
 const { pimlicoApiKey } = useEnv();
 const { isAuthorized, account } = useAccount();
@@ -121,9 +130,16 @@ function handleSourceChainChange(event: Event): void {
   setChainId(parseInt(targetChain) as Chain);
 }
 
-function setCounterInitcode(): void {
-  initcode.value =
-    '0x608060405234801561000f575f80fd5b506101438061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610034575f3560e01c806360fe47b1146100385780636d4ce63c14610054575b5f80fd5b610052600480360381019061004d91906100ba565b610072565b005b61005c61007b565b60405161006991906100f4565b60405180910390f35b805f8190555050565b5f8054905090565b5f80fd5b5f819050919050565b61009981610087565b81146100a3575f80fd5b50565b5f813590506100b481610090565b92915050565b5f602082840312156100cf576100ce610083565b5b5f6100dc848285016100a6565b91505092915050565b6100ee81610087565b82525050565b5f6020820190506101075f8301846100e5565b9291505056fea264697066735822122098fd7ec7a21cc81e7c38d0c7cb2660ad7b42d745d59e4fd14d90d7e952fbcafe64736f6c63430008180033';
+function setStorageInitcode(): void {
+  initcode.value = getSimpleStorageInitcode();
+}
+
+function setOwnerInitcode(): void {
+  initcode.value = getOwnerInitcode();
+}
+
+function setBallotInitcode(): void {
+  initcode.value = getBallotInitcode();
 }
 
 function generateSalt(): void {
@@ -181,6 +197,11 @@ async function deploy(): Promise<void> {
 h1 {
   font-size: 20px;
   font-weight: normal;
+}
+
+.buttons {
+  display: flex;
+  gap: 4px;
 }
 
 .content {
