@@ -93,7 +93,6 @@ async function deploy(
     });
     values.push(value as bigint);
   }
-  console.log('Values: ', values);
   const value = values.reduce((a, b) => a + b, 0n);
   const gasLimit = await estimateContractGas(walletClient, {
     abi: bytecodeRouterAbi,
