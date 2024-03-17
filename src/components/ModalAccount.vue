@@ -16,13 +16,6 @@
                 <ButtonCopy :value="address" />
               </div>
             </div>
-            <div class="field">
-              <div class="label">Safe Address</div>
-              <div class="value">
-                {{ formatAddress(safeAddress) }}
-                <ButtonCopy :value="address" />
-              </div>
-            </div>
           </div>
           <div><HyperButton @click="handleLogout"> Log Out </HyperButton></div>
         </Dialog.Description>
@@ -38,7 +31,7 @@ import ButtonCopy from '@/components/ButtonCopy.vue';
 import HyperButton from '@/components/HyperButton.vue';
 import useAccount from '@/composables/useAccount';
 
-const { address, safeAddress, logout } = useAccount();
+const { address, logout } = useAccount();
 
 defineProps<{
   open: boolean;

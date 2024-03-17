@@ -3,13 +3,17 @@ import { createApp } from 'vue';
 import { createWebHistory, createRouter } from 'vue-router';
 
 import Main from '@/pages/Main.vue';
+import Safes from '@/pages/Safes.vue';
 
 import App from './App.vue';
 
 const routerHistory = createWebHistory();
 const router = createRouter({
   history: routerHistory,
-  routes: [{ path: '/', component: Main }],
+  routes: [
+    { path: '/', component: Main },
+    { path: '/safes', component: Safes },
+  ],
 });
 
 const app = createApp(App);

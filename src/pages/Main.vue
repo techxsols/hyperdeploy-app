@@ -55,6 +55,24 @@
             </option>
           </select>
         </div>
+        <div
+          v-if="hasSafes"
+          class="block block-safes"
+        >
+          <select
+            :value="selectedSafe"
+            @change="handleSafeChange"
+          >
+            <option
+              v-for="safe in chainSafes"
+              :key="safe"
+              :value="safe"
+            >
+              {{ safe }}
+            </option>
+          </select>
+          <HyperButton @click="openSafesPage">Manage</HyperButton>
+        </div>
         <div class="block">
           <HyperButton
             :disabled="!isAuthorized || !isDeployable"
@@ -70,8 +88,9 @@
 </template>
 
 <script setup lang="ts">
-import { isHex, type Hex } from 'viem';
+import { isHex, type Hex, type Address } from 'viem';
 import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 import HyperButton from '@/components/HyperButton.vue';
 import HyperInput from '@/components/HyperInput.vue';
@@ -79,6 +98,7 @@ import HyperTextArea from '@/components/HyperTextArea.vue';
 import useAccount from '@/composables/useAccount';
 import useChain from '@/composables/useChain';
 import useEnv from '@/composables/useEnv';
+import useSafe from '@/composables/useSafe';
 import type { Chain } from '@/utils/core';
 import {
   CHAINS,
@@ -99,9 +119,11 @@ import {
   getSimpleStorageInitcode,
 } from '@/utils/initcode';
 
+const router = useRouter();
 const { pimlicoApiKey } = useEnv();
 const { isAuthorized, account } = useAccount();
 const { id: chainId, setId: setChainId } = useChain();
+const { chainSafes, hasSafes, selectSafe, selectedSafe } = useSafe();
 
 const initcode = ref('');
 const salt = ref('');
@@ -122,8 +144,21 @@ const isDeployable = computed(() => {
   if (!isSaltHex) return false;
   if (salt.value.length !== 66) return false;
 
+  // Make sure the safe is selected
+  if (!hasSafes.value) return false;
+  if (!selectedSafe.value) return false;
+
   return true;
 });
+
+function openSafesPage(): void {
+  router.push('/safes');
+}
+
+function handleSafeChange(event: Event): void {
+  const safeAddress = (event.target as HTMLSelectElement).value as Address;
+  selectSafe(safeAddress);
+}
 
 function handleSourceChainChange(event: Event): void {
   const targetChain = (event.target as HTMLSelectElement).value;
@@ -232,6 +267,11 @@ h1 {
 .block-salt {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.block-safes {
+  display: flex;
   gap: 8px;
 }
 

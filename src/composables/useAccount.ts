@@ -3,10 +3,9 @@ import {
   hashMessage,
   type PrivateKeyAccount,
   type Address,
-  zeroAddress,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { type Ref, computed, watch, ref } from 'vue';
+import { type Ref, computed, watch } from 'vue';
 
 import useAccountStore from '@/stores/account';
 import type { Chain } from '@/utils/core';
@@ -14,6 +13,7 @@ import { getSafeAccount } from '@/utils/deployWithSafe';
 import { getNickname } from '@/utils/words';
 
 import useChain from './useChain';
+import useSafe from './useSafe';
 
 interface UseAccount {
   login(phrase: string): void;
@@ -21,7 +21,6 @@ interface UseAccount {
   isAuthorized: Ref<boolean>;
   account: Ref<PrivateKeyAccount>;
   address: Ref<Address>;
-  safeAddress: Ref<Address>;
   nickname: Ref<string>;
 }
 
@@ -29,10 +28,10 @@ function useAccount(): UseAccount {
   const store = useAccountStore();
 
   const chain = useChain();
+  const { clearSafes, addSafe } = useSafe();
   const chainId = computed(() => chain.id.value);
 
   const passphrase = computed(() => store.passphrase);
-  const safeAddress = ref<Address>(zeroAddress);
 
   function login(newPassphrase: string): void {
     store.setPasshrase(newPassphrase);
@@ -68,16 +67,15 @@ function useAccount(): UseAccount {
     account: PrivateKeyAccount,
     chainId: Chain,
   ): Promise<void> {
-    if (!account) {
-      safeAddress.value = zeroAddress;
+    if (!chainId) {
       return;
     }
-    if (!chainId) {
-      safeAddress.value = zeroAddress;
+    clearSafes(chainId);
+    if (!account) {
       return;
     }
     const safeAccount = await getSafeAccount(chainId, account);
-    safeAddress.value = safeAccount.address;
+    addSafe(chainId, safeAccount.address);
   }
 
   const nickname = computed(() => getNickname(address.value));
@@ -89,7 +87,6 @@ function useAccount(): UseAccount {
     account,
     address,
     nickname,
-    safeAddress,
   };
 }
 
