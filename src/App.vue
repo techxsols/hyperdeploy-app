@@ -1,8 +1,15 @@
 <template>
   <div id="app">
+    <header>
+      <AccountButton />
+    </header>
     <router-view />
   </div>
 </template>
+
+<script setup lang="ts">
+import AccountButton from '@/components/AccountButton.vue';
+</script>
 
 <style>
 :root {
@@ -18,6 +25,11 @@
 
 body {
   font-family: var(--font-sans);
+}
+
+header {
+  display: flex;
+  justify-content: end;
 }
 
 /* Reset */
