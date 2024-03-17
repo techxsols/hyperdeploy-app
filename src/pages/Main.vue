@@ -17,7 +17,10 @@
         <button @click="generateSalt">Generate salt</button>
       </div>
       <div class="block">
-        <select v-model="source">
+        <select
+          :value="source"
+          @change="handleSourceChainChange"
+        >
           <option
             v-for="chain in CHAINS"
             :key="chain"
@@ -44,7 +47,12 @@
         </select>
       </div>
       <div class="block">
-        <button @click="deploy">Deploy</button>
+        <button
+          :disabled="!isAuthorized"
+          @click="deploy"
+        >
+          Deploy
+        </button>
       </div>
     </div>
   </div>
@@ -52,8 +60,10 @@
 
 <script setup lang="ts">
 import { type Hex } from 'viem';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
+import useAccount from '@/composables/useAccount';
+import useChain from '@/composables/useChain';
 import useEnv from '@/composables/useEnv';
 import type { Chain } from '@/utils/core';
 import {
@@ -68,20 +78,25 @@ import {
   isTargetSupported,
   isSourceSupported,
 } from '@/utils/core';
-import deployAsEoa from '@/utils/deployEoa';
-// import deployWithSafe from '@/utils/deployWithSafe';
+import deployWithSafe from '@/utils/deployWithSafe';
 
-// const { privateKey, pimlicoApiKey } = useEnv();
-const { privateKey } = useEnv();
+const { pimlicoApiKey } = useEnv();
+const { isAuthorized, account } = useAccount();
+const { id: chainId, setId: setChainId } = useChain();
 
 const initcode = ref('');
 const salt = ref('');
-const source = ref<Chain>(CHAIN_SEPOLIA);
+const source = computed(() => chainId.value);
 const target = ref<Chain[]>([CHAIN_POLYGON_MUMBAI]);
 
 watch(source, () => {
   target.value = [];
 });
+
+function handleSourceChainChange(event: Event): void {
+  const targetChain = (event.target as HTMLSelectElement).value;
+  setChainId(parseInt(targetChain) as Chain);
+}
 
 function setCounterInitcode(): void {
   initcode.value =
@@ -121,22 +136,13 @@ function getChainName(chain: Chain): string {
 }
 
 async function deploy(): Promise<void> {
-  await deployAsEoa(
+  await deployWithSafe(
     source.value,
     target.value,
     initcode.value,
     salt.value,
-    privateKey,
+    pimlicoApiKey,
+    account.value,
   );
-  // const accountSalt = '0x54ebe0a0fbd0caf8782fddfccc1bc24ef004e69f';
-  // await deployWithSafe(
-  //   source.value,
-  //   target.value,
-  //   initcode.value,
-  //   salt.value,
-  //   pimlicoApiKey,
-  //   privateKey,
-  //   accountSalt,
-  // );
 }
 </script>

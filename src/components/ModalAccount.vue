@@ -8,8 +8,14 @@
       <Dialog.Content class="content">
         <Dialog.Title class="title">Account</Dialog.Title>
         <Dialog.Description>
-          <div>Address</div>
-          <div class="address">{{ address }}</div>
+          <div>
+            <div>Address</div>
+            <div class="address">{{ address }}</div>
+          </div>
+          <div>
+            <div>Safe Address</div>
+            <div class="address">{{ safeAddress }}</div>
+          </div>
           <button @click="handleLogout">Log Out</button>
         </Dialog.Description>
       </Dialog.Content>
@@ -22,7 +28,7 @@ import { Dialog } from 'radix-vue/namespaced';
 
 import useAccount from '@/composables/useAccount';
 
-const { address, logout } = useAccount();
+const { address, safeAddress, logout } = useAccount();
 
 defineProps<{
   open: boolean;

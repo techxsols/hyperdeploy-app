@@ -2,7 +2,10 @@ import {
   ENTRYPOINT_ADDRESS_V06,
   createSmartAccountClient,
 } from 'permissionless';
-import { signerToSafeSmartAccount } from 'permissionless/accounts';
+import {
+  signerToSafeSmartAccount,
+  type SafeSmartAccount,
+} from 'permissionless/accounts';
 import {
   createPimlicoBundlerClient,
   createPimlicoPaymasterClient,
@@ -15,8 +18,8 @@ import {
   encodeFunctionData,
   isHex,
   encodeAbiParameters,
+  type PrivateKeyAccount,
 } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 import { readContract } from 'viem/actions';
 
 import bytecodeRouterAbi from '@/abi/bytecodeRouter';
@@ -73,14 +76,31 @@ function getPimlicoBundlerRpcUrl(chain: Chain, apiKey: string): string {
   return `https://api.pimlico.io/v1/${chainName}/rpc?apikey=${apiKey}`;
 }
 
+async function getSafeAccount(
+  source: Chain,
+  signer: PrivateKeyAccount,
+): Promise<SafeSmartAccount> {
+  const rpcUrl = getRpcUrl(source);
+  const publicClient = createPublicClient({
+    transport: http(rpcUrl),
+  });
+
+  const safeAccount = await signerToSafeSmartAccount(publicClient, {
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+    signer,
+    safeVersion: '1.4.1',
+  });
+
+  return safeAccount;
+}
+
 async function deploy(
   source: Chain,
   targets: Chain[],
   initcode: string,
   salt: string,
   pimlicoApiKey: string,
-  privateKey: string,
-  accountSalt: Address,
+  signer: PrivateKeyAccount,
 ): Promise<Hex> {
   const chain = getChainData(source);
   const rpcUrl = getRpcUrl(source);
@@ -99,11 +119,6 @@ async function deploy(
     throw new Error('Invalid salt');
   }
 
-  const signer = privateKeyToAccount(privateKey as Hex);
-  if (!signer) {
-    throw new Error('Invalid private key');
-  }
-
   const publicClient = createPublicClient({
     transport: http(rpcUrl),
   });
@@ -117,12 +132,7 @@ async function deploy(
     entryPoint: ENTRYPOINT_ADDRESS_V06,
   });
 
-  const safeAccount = await signerToSafeSmartAccount(publicClient, {
-    entryPoint: ENTRYPOINT_ADDRESS_V06,
-    signer,
-    saltNonce: BigInt(accountSalt),
-    safeVersion: '1.4.1',
-  });
+  const safeAccount = await getSafeAccount(source, signer);
 
   const smartAccountClient = createSmartAccountClient({
     account: safeAccount,
@@ -219,3 +229,4 @@ async function deploy(
 }
 
 export default deploy;
+export { getSafeAccount };
